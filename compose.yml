@@ -6,12 +6,9 @@ services:
     tty: true
     volumes:
     - ./workspace:/workspace
-    - config:/home/pi/.pi
+    - ./pi:/home/pi/.pi
     environment:
     - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
     - RDMO_URL=${RDMO_URL:-}
     - RDMO_TOKEN=${RDMO_TOKEN:-}
     working_dir: /workspace
-
-volumes:
-  config:

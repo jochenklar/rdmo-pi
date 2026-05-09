@@ -1,4 +1,4 @@
-FROM node:22-bookworm-slim
+FROM node:22-trixie-slim
 
 # Tools Pi commonly shells out to (git, ripgrep, curl, build basics).
 # Add/remove based on what your projects need.
@@ -20,7 +20,7 @@ WORKDIR /home/pi
 
 # Install Pi globally for the pi user.
 RUN npm config set prefix '/home/pi/.npm-global' \
-    && npm install -g @mariozechner/pi-coding-agent
+    && npm install -g @earendil-works/pi-coding-agent
 ENV PATH="/home/pi/.npm-global/bin:${PATH}"
 
 # Pre-create the config dir as the pi user. When the named volume mounts
@@ -31,5 +31,7 @@ RUN mkdir -p /home/pi/.pi
 
 # Working directory you'll mount your project into.
 WORKDIR /workspace
+
+COPY SKILL.md /home/pi/.agents/skills/rdmo/
 
 CMD ["pi"]
