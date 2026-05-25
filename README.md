@@ -31,4 +31,3 @@ Ask the chatbot:
 3) Create a new project with the title "AI" and the description "Testing is fun" and the catalog RDMO.
 4) What is the first question in the interview.
 5) The main research question is "Testing tools and having fun." and you can make up 3 keywords.
-

@@ -1,19 +1,20 @@
 FROM node:22-trixie-slim
 
-# Tools Pi commonly shells out to (git, ripgrep, curl, build basics).
-# Add/remove based on what your projects need.
 RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
         ca-certificates \
         curl \
+        fd-find \
         git \
         jq \
-        python3 \
         ripgrep \
+        python3 \
+        python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Run as a non-root user. Pi has no permission prompts, so the container
-# boundary IS your sandbox — keep it unprivileged.
+RUN ln -s $(which fdfind) /usr/local/bin/fd
+
+# Run as a non-root user.
 RUN useradd -m -s /bin/bash pi
 USER pi
 WORKDIR /home/pi
@@ -31,7 +32,5 @@ RUN mkdir -p /home/pi/.pi
 
 # Working directory you'll mount your project into.
 WORKDIR /workspace
-
-COPY SKILL.md /home/pi/.agents/skills/rdmo/
 
 CMD ["pi"]
