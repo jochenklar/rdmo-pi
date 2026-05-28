@@ -6,12 +6,21 @@ services:
         PI_VERSION: ${PI_VERSION:-latest}
     image: rdmo-pi
     init: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
     stdin_open: true
     tty: true
     extra_hosts:
       - host.docker.internal:host-gateway
     env_file:
       - .env
+    tmpfs:
+      - /tmp
+      - /home/pi/.cache
+      - /home/pi/.config
     volumes:
       - ./pi:/home/pi/.pi
       - ./skills:/home/pi/.agents/skills:ro
