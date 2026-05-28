@@ -4,9 +4,16 @@ A docker container setup for [pi](https://pi.dev/) ✨
 
 ## Setup
 
-Download the OpenAPI specification from, e.g. https://rdmo.jochenklar.dev/main/api/v1/schema/.
+Download the OpenAPI specification from your RDMO instance, for example:
+`https://rdmo.jochenklar.dev/main/api/v1/schema/`
 
-Create a `workspace` directory and place the schema inside.
+Create the working directories:
+
+```bash
+mkdir -p workspace pi
+```
+
+Place the schema file in `workspace/`.
 
 Create a `.env` file with:
 
@@ -16,10 +23,22 @@ RDMO_TOKEN=
 ANTHROPIC_API_KEY=
 ```
 
-Build and run the docker container:
+Build the image:
 
 ```bash
-make
+make build
+```
+
+Run the container:
+
+```bash
+make run
+```
+
+To pin the Pi package version, set `PI_VERSION` for the build:
+
+```bash
+PI_VERSION=1.2.3 make build
 ```
 
 ## Usage

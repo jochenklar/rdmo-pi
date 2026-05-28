@@ -1,17 +1,19 @@
 services:
   pi:
-    build: .
-    image: pi
+    build:
+      context: .
+      args:
+        PI_VERSION: ${PI_VERSION:-latest}
+    image: rdmo-pi
+    init: true
     stdin_open: true
     tty: true
     extra_hosts:
-    - host.docker.internal:host-gateway
+      - host.docker.internal:host-gateway
+    env_file:
+      - .env
     volumes:
-    - ./pi:/home/pi/.pi
-    - ./skills:/home/pi/.agents/skills:ro
-    - ./workspace:/workspace
-    environment:
-    - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
-    - RDMO_URL=${RDMO_URL:-}
-    - RDMO_TOKEN=${RDMO_TOKEN:-}
+      - ./pi:/home/pi/.pi
+      - ./skills:/home/pi/.agents/skills:ro
+      - ./workspace:/workspace
     working_dir: /workspace

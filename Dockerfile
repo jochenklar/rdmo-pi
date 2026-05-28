@@ -1,36 +1,33 @@
 FROM node:22-trixie-slim
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+ARG PI_VERSION=latest
+
+ENV NPM_CONFIG_PREFIX=/home/pi/.npm-global
+ENV PATH=/home/pi/.npm-global/bin:${PATH}
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
         build-essential \
         ca-certificates \
         curl \
         fd-find \
         git \
         jq \
-        ripgrep \
         python3 \
         python3-dev \
+        ripgrep \
+    && ln -sf /usr/bin/fdfind /usr/local/bin/fd \
     && rm -rf /var/lib/apt/lists/*
 
-RUN ln -s $(which fdfind) /usr/local/bin/fd
+RUN useradd -m -s /bin/bash pi \
+    && install -d -o pi -g pi /home/pi/.pi /home/pi/.npm-global /workspace
 
-# Run as a non-root user.
-RUN useradd -m -s /bin/bash pi
 USER pi
 WORKDIR /home/pi
 
-# Install Pi globally for the pi user.
-RUN npm config set prefix '/home/pi/.npm-global' \
-    && npm install -g @earendil-works/pi-coding-agent
-ENV PATH="/home/pi/.npm-global/bin:${PATH}"
+RUN npm install -g @earendil-works/pi-coding-agent@${PI_VERSION} \
+    && npm cache clean --force
 
-# Pre-create the config dir as the pi user. When the named volume mounts
-# at /home/pi/.pi, Docker initializes a fresh volume by copying this
-# directory's contents AND ownership — without this, the volume is
-# owned by root and Pi can't write its session files.
-RUN mkdir -p /home/pi/.pi
-
-# Working directory you'll mount your project into.
 WORKDIR /workspace
 
 CMD ["pi"]
