@@ -10,7 +10,7 @@ Download the OpenAPI specification from your RDMO instance, for example:
 Create the working directories:
 
 ```bash
-mkdir -p workspace pi
+mkdir -p workspace
 ```
 
 Place the schema file in `workspace/`.

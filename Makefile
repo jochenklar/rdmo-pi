@@ -10,7 +10,7 @@ build:
 
 clean:
 	docker compose down
-	rm -rf pi workspace
+	rm -rf workspace
 
 logs:
 	docker compose logs -f

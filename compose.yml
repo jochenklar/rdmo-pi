@@ -22,7 +22,10 @@ services:
       - /home/pi/.cache
       - /home/pi/.config
     volumes:
-      - ./pi:/home/pi/.pi
+      - pi-state:/home/pi/.pi
       - ./skills:/home/pi/.agents/skills:ro
       - ./workspace:/workspace
     working_dir: /workspace
+
+volumes:
+  pi-state:
