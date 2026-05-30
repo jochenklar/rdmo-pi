@@ -1,0 +1,85 @@
+---
+
+- name: Setup pi.dev
+  hosts: all
+  tasks:
+  - name: Install packages
+    ansible.builtin.apt:
+      name:
+        - ripgrep
+        - fd-find
+      state: present
+      update_cache: true
+
+  - name: Link fd to fdfind
+    ansible.builtin.file:
+      src: /usr/bin/fdfind
+      dest: /usr/bin/fd
+      state: link
+
+  - name: Create the user account
+    ansible.builtin.user:
+      name: "{{ item.name }}"
+      password: "{{ item.hash | default(omit) }}"
+      shell: /bin/bash
+      create_home: true
+      state: present
+    loop: "{{ users }}"
+
+  - name: Setup ssh keys
+    become: true
+    become_user: "{{ item.name }}"
+    ansible.posix.authorized_key:
+      user: "{{ item.name }}"
+      key: "{{ item.ssh_keys | join('\n') }}"
+      state: present
+    loop: "{{ users }}"
+    when: item.ssh_keys is defined
+
+  - name: Install nvm
+    become: true
+    become_user: "{{ item.name }}"
+    ansible.builtin.shell: >
+      curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | bash
+    args:
+      creates: "/home/{{ item.name }}/.nvm/nvm.sh"
+    loop: "{{ users }}"
+
+  - name: Install node and npm
+    become: true
+    become_user: "{{ item.name }}"
+    ansible.builtin.shell: |
+      source /home/{{ item.name }}/.nvm/nvm.sh
+      nvm install {{ node_version }}
+      nvm alias default {{ node_version }}
+    args:
+      executable: /bin/bash
+      creates: "/home/{{ item.name }}/.nvm/versions/node/{{ node_version }}/"
+    loop: "{{ users }}"
+
+  - name: Install @earendil-works/pi-coding-agent
+    become: true
+    become_user: "{{ item.name }}"
+    ansible.builtin.shell: |
+      source /home/{{ item.name }}/.nvm/nvm.sh
+      npm install -g @earendil-works/pi-coding-agent
+    args:
+      executable: /bin/bash
+      creates: "/home/{{ item.name }}/.nvm/versions/node/{{ node_version }}/bin/pi"
+    loop: "{{ users }}"
+
+  - name: Copy .env file
+    become: true
+    become_user: "{{ item.name }}"
+    ansible.builtin.copy:
+      src: .env
+      dest: /home/{{ item.name }}/.env
+    loop: "{{ users }}"
+
+  - name: Copy skills
+    become: true
+    become_user: "{{ item.name }}"
+    ansible.builtin.copy:
+      src: skills/
+      dest: /home/{{ item.name }}/.pi/agent/skills
+    loop: "{{ users }}"

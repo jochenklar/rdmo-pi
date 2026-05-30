@@ -7,6 +7,8 @@ __pycache__/
 *.save
 .DS_Store
 
+/.env
+/env
+/hosts.yml
 /pi
 /workspace
-/.env
