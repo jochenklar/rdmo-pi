@@ -1,4 +1,4 @@
-FROM node:22-trixie-slim
+FROM node:24-trixie-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         ripgrep \
         python3 \
         python3-dev \
+        python-is-python3 \
     && rm -rf /var/lib/apt/lists/*
 
 RUN ln -s $(which fdfind) /usr/local/bin/fd

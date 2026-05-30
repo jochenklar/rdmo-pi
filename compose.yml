@@ -4,11 +4,11 @@ services:
     image: pi
     stdin_open: true
     tty: true
-    extra_hosts:
-    - host.docker.internal:host-gateway
+    # extra_hosts:
+    # - host.docker.internal:host-gateway
     volumes:
     - ./pi:/home/pi/.pi
-    - ./skills:/home/pi/.agents/skills:ro
+    - ./skills:/home/pi/.pi/agent/skills
     - ./workspace:/workspace
     environment:
     - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
