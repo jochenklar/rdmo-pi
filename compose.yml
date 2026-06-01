@@ -1,17 +1,24 @@
+---
 services:
   pi:
-    build: .
-    image: pi
+    container_name: pi
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        UID: ${UID}
+        GID: ${GID}
     stdin_open: true
     tty: true
-    # extra_hosts:
-    # - host.docker.internal:host-gateway
+    cap_drop:
+      - ALL
+    # network_mode: host
     volumes:
-    - ./pi:/home/pi/.pi
-    - ./skills:/home/pi/.pi/agent/skills
-    - ./workspace:/workspace
+      - ./pi:/home/pi/.pi
+      - ./skills:/home/pi/.pi/agent/skills
+      - ./workspace:/workspace
     environment:
-    - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
-    - RDMO_URL=${RDMO_URL:-}
-    - RDMO_TOKEN=${RDMO_TOKEN:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - RDMO_URL=${RDMO_URL:-}
+      - RDMO_TOKEN=${RDMO_TOKEN:-}
     working_dir: /workspace
