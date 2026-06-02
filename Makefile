@@ -1,7 +1,9 @@
 .PHONY: run build clean
 
+ifeq ($(shell uname),Linux)
 export UID=$(shell id -u)
 export GID=$(shell id -g)
+endif
 
 run:
 	mkdir -p pi/agent workspace

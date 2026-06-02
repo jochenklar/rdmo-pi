@@ -4,14 +4,14 @@ ARG UID=1000
 ARG GID=1000
 
 ENV USER=pi
-ENV GROUP=grp
+ENV GROUP=pi
 ENV HOME=/home/pi
 
 RUN apk add --no-cache --update curl bash fd git grep ripgrep jq
 RUN apk add --no-cache --update nodejs npm
 RUN apk add --no-cache --update python3 py3-pip
 
-RUN addgroup -g "${GID}" -S "${GROUP}"
+RUN getent group "${GID}" > /dev/null 2>&1 || addgroup -g "${GID}" -S "${GROUP}"
 RUN adduser -S "${USER}" -u "${UID}" -G "${GROUP}" -h "${HOME}" -s "/bin/sh"
 RUN chown -R "${USER}:${GID}" "${HOME}" /var/log
 
