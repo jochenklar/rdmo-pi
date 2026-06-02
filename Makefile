@@ -1,4 +1,4 @@
-.PHONY: run build clean logs
+.PHONY: run build clean
 
 export UID=$(shell id -u)
 export GID=$(shell id -g)
@@ -13,6 +13,3 @@ build:
 clean:
 	docker compose down
 	rm -fr pi/*
-
-logs:
-	docker compose logs -f
