@@ -1,37 +1,21 @@
-FROM node:24-trixie-slim
+FROM alpine:latest
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        build-essential \
-        ca-certificates \
-        curl \
-        fd-find \
-        git \
-        jq \
-        ripgrep \
-        python3 \
-        python3-dev \
-        python-is-python3 \
-    && rm -rf /var/lib/apt/lists/*
+ARG UID=1000
+ARG GID=1000
 
-RUN ln -s $(which fdfind) /usr/local/bin/fd
+ENV USER=pi
+ENV GROUP=pi
+ENV HOME=/home/pi
 
-# Run as a non-root user.
-RUN useradd -m -s /bin/bash pi
+RUN apk add --no-cache --update curl bash fd git grep ripgrep jq
+RUN apk add --no-cache --update nodejs npm
+RUN apk add --no-cache --update python3 py3-pip
+
+RUN addgroup -g "${GID}" -S "${GROUP}"
+RUN adduser -S "${USER}" -u "${UID}" -G "${GROUP}" -h "${HOME}" -s "/bin/sh"
+RUN chown -R "${USER}:${GID}" "${HOME}" /var/log
+
+RUN npm install -g @earendil-works/pi-coding-agent
+
 USER pi
-WORKDIR /home/pi
-
-# Install Pi globally for the pi user.
-RUN npm config set prefix '/home/pi/.npm-global' \
-    && npm install -g @earendil-works/pi-coding-agent
-ENV PATH="/home/pi/.npm-global/bin:${PATH}"
-
-# Pre-create the config dir as the pi user. When the named volume mounts
-# at /home/pi/.pi, Docker initializes a fresh volume by copying this
-# directory's contents AND ownership — without this, the volume is
-# owned by root and Pi can't write its session files.
-RUN mkdir -p /home/pi/.pi
-
-# Working directory you'll mount your project into.
-WORKDIR /workspace
-
 CMD ["pi"]
