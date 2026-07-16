@@ -1,13 +1,18 @@
 ---
 services:
-  pi:
-    container_name: pi
+  agent:
+    container_name: ${CODING_AGENT:-pi}
+    image: rdmo-pi-${CODING_AGENT:-pi}:latest
     build:
       context: .
       dockerfile: Dockerfile
+      target: ${CODING_AGENT:-pi}
       args:
         UID: ${UID:-1000}
         GID: ${GID:-1000}
+        AGENT_USER: ${AGENT_USER:-agent}
+        AGENT_GROUP: ${AGENT_GROUP:-agent}
+        AGENT_HOME: ${AGENT_HOME:-/home/agent}
     stdin_open: true
     tty: true
     security_opt:
@@ -15,9 +20,11 @@ services:
     cap_drop:
       - ALL
     volumes:
-      - ./pi:/home/pi/.pi
-      - ./skills:/home/pi/.pi/agent/skills
+      - ./${CODING_AGENT:-pi}:${AGENT_HOME:-/home/agent}/.${CODING_AGENT:-pi}
+      - ./skills:${AGENT_HOME:-/home/agent}/.${CODING_AGENT:-pi}/agent/skills
       - ./workspace:/workspace
+    ports:
+      - "127.0.0.1:1455:1455"
     env_file:
       - .env
     working_dir: /workspace

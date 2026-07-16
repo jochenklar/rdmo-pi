@@ -13,12 +13,45 @@ RDMO_TOKEN=
 
 ### Docker
 
-The docker setup consists of a `Dockerfile` and a `compose.yml` for docker compose.
+The Docker setup consists of a multi-target `Dockerfile` and a `compose.yml` for Docker Compose. The Compose service is named `agent`; the Docker build target selects which coding agent is installed.
 
 Build and run the docker container using:
 
 ```bash
-make pi
+make run
+```
+
+This uses the `pi` agent by default. To build and run the `tau` agent instead:
+
+```bash
+make tau
+```
+
+The Docker build target is controlled by `CODING_AGENT`, which can be set to `pi` or `tau`:
+
+```bash
+CODING_AGENT=tau make build
+```
+
+The container user defaults to a neutral `agent` user for both tools. Agent-specific runtime state is still kept separate on the host in `./pi` and `./tau`:
+
+```bash
+./pi  -> /home/agent/.pi
+./tau -> /home/agent/.tau
+```
+
+Tau OAuth browser callbacks use `http://localhost:1455/auth/callback`. The Docker image sets `TAU_OAUTH_CALLBACK_HOST=0.0.0.0`, and `make tau` publishes `127.0.0.1:1455:1455` so the host browser can reach the callback listener. If port `1455` is already in use, use Tau's paste fallback with the full redirect URL from the browser. The fallback input needs the final callback URL after provider login, for example `http://localhost:1455/auth/callback?code=...&state=...`, not the initial `https://auth.openai.com/oauth/authorize?...` login URL.
+
+Stop containers without deleting runtime state:
+
+```bash
+make clean
+```
+
+Delete local Pi/Tau runtime state, including auth, cache, and sessions:
+
+```bash
+make clean-runtime
 ```
 
 ### Ansible

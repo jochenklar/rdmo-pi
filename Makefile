@@ -1,4 +1,14 @@
-.PHONY: run build clean
+.PHONY: run build clean clean-runtime pi tau prepare-runtime
+
+CODING_AGENT ?= pi
+AGENT_USER ?= agent
+AGENT_GROUP ?= agent
+AGENT_HOME ?= /home/$(AGENT_USER)
+
+export CODING_AGENT
+export AGENT_USER
+export AGENT_GROUP
+export AGENT_HOME
 
 # only set UID/GID on linux
 ifeq ($(shell uname),Linux)
@@ -11,14 +21,28 @@ export GID=$(shell id -g)
 endif
 endif
 
-run:
-	mkdir -p pi/agent workspace
-	chown -R $(UID):$(GID) pi workspace
-	docker compose run --rm --build pi
+prepare-runtime:
+	mkdir -p $(CODING_AGENT)/agent workspace
+	chown $(UID):$(GID) $(CODING_AGENT) $(CODING_AGENT)/agent workspace
+	chmod u+rwx,g+rwx $(CODING_AGENT) $(CODING_AGENT)/agent workspace
+
+run: prepare-runtime
+	docker compose run --rm --build $(if $(filter tau,$(CODING_AGENT)),--service-ports,) agent
 
 build:
-	docker compose build
+	docker compose build agent
+
+pi: CODING_AGENT=pi
+pi: run
+
+tau: CODING_AGENT=tau
+tau: run
 
 clean:
 	docker compose down
-	rm -fr pi/*
+
+clean-runtime: clean
+	$(MAKE) CODING_AGENT=pi prepare-runtime
+	CODING_AGENT=pi docker compose run --rm --build --entrypoint sh agent -lc 'rm -rf "$$HOME/.pi"/*'
+	$(MAKE) CODING_AGENT=tau prepare-runtime
+	CODING_AGENT=tau docker compose run --rm --build --entrypoint sh agent -lc 'rm -rf "$$HOME/.tau"/*'
