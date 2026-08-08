@@ -1,28 +1,84 @@
----
+# common config for all profiles
+x-common: &common
+  stdin_open: true
+  tty: true
+  security_opt:
+    - no-new-privileges:true
+  cap_drop:
+    - ALL
+  env_file:
+    - path: ./.env
+      required: false
+
 services:
   pi:
-    container_name: pi
+    <<: *common
+    container_name: rdmo-pi
+    image: rdmo-pi:latest
     build:
       context: .
-      dockerfile: Dockerfile
+      target: rdmo-pi
       args:
-        UID: ${UID:-1000}
-        GID: ${GID:-1000}
-    stdin_open: true
-    tty: true
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
+        UID: ${AGENT_UID:-1000}
+        GID: ${AGENT_GID:-1000}
     volumes:
-      - ./pi:/home/pi/.pi
-      - ./skills:/home/pi/.pi/agent/skills
-      - ./workspace:/workspace
-    env_file:
-      - .env
-    working_dir: /workspace
-    ## uncomment to access host (linux)
-    # network_mode: host
-    ## uncomment to access host (mac)
-    # extra_hosts:
-    # - host.docker.internal:host-gateway
+      - pi:/home/agent
+      - ${WORKSPACE_PATH:-./workspace}:/workspace
+      - ${SKILLS_PATH:-./skills}:/home/agent/.pi/agent/skills
+      - ${MODELS_JSON:-./default/models.json}:/home/agent/.pi/agent/models.json
+    profiles: [pi]
+
+  claude:
+    <<: *common
+    container_name: rdmo-claude
+    image: rdmo-claude:latest
+    build:
+      context: .
+      target: rdmo-claude
+      args:
+        UID: ${AGENT_UID:-1000}
+        GID: ${AGENT_GID:-1000}
+    volumes:
+      - claude:/home/agent
+      - ${WORKSPACE_PATH:-./workspace}:/workspace
+      - ${SKILLS_PATH:-./skills}:/home/agent/.claude/skills
+    profiles: [claude]
+
+  codex:
+    <<: *common
+    container_name: rdmo-codex
+    image: rdmo-codex:latest
+    build:
+      context: .
+      target: rdmo-codex
+      args:
+        UID: ${AGENT_UID:-1000}
+        GID: ${AGENT_GID:-1000}
+    volumes:
+      - codex:/home/agent
+      - ${WORKSPACE_PATH:-./workspace}:/workspace
+      - ${SKILLS_PATH:-./skills}:/home/agent/.codex/skills/
+    profiles: [codex]
+
+  tau:
+    <<: *common
+    container_name: rdmo-tau
+    image: rdmo-tau:latest
+    build:
+      context: .
+      target: rdmo-tau
+      args:
+        UID: ${AGENT_UID:-1000}
+        GID: ${AGENT_GID:-1000}
+    volumes:
+      - tau:/home/agent
+      - ${WORKSPACE_PATH:-./workspace}:/workspace
+      - ${SKILLS_PATH:-./skills}:/home/agent/.tau/skills
+      - ${CATALOG_TOML:-./default/catalog.toml}:/home/agent/.tau/catalog.toml
+    profiles: [tau]
+
+volumes:
+  pi:
+  claude:
+  codex:
+  tau:

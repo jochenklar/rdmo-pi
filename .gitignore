@@ -1,6 +1,3 @@
-__pycache__/
-*.py[cod]
-
 *~
 *-
 *.swp
@@ -8,7 +5,16 @@ __pycache__/
 .DS_Store
 
 /.env
-/env
-/hosts.yml
-/pi
 /workspace
+
+# pi
+/models.json
+
+# tau
+/catalog.toml
+
+# codex
+/skills/.system
+
+# ansible
+/hosts.yml

@@ -1,6 +1,6 @@
 # rdmo-pi
 
-A setup for [pi](https://pi.dev/) to be used with [RDMO](https://rdmorganiser.github.io) ✨
+A setup for [pi](https://pi.dev/) and other coding harnesses to be used with [RDMO](https://rdmorganiser.github.io) ✨
 
 ## Setup
 
@@ -18,8 +18,75 @@ The docker setup consists of a `Dockerfile` and a `compose.yml` for docker compo
 Build and run the docker container using:
 
 ```bash
-make pi
+make
+make bash   # open a shell in the container (for debugging)
+make build  # (re-)build the docker image
+make clean  # remove the container and the home volume
 ```
+
+Other agents / coding harnesses use:
+
+```bash
+make AGENT=claude
+make AGENT=codex
+make AGENT=tau
+```
+
+`AGENT` can also be put in the `.env` file.
+
+With `pi` you can create a [`model.json`](https://pi.dev/docs/latest/models), e.g. for a local Ollama installation:
+
+```json
+{
+  "providers": {
+    "ollama": {
+      "baseUrl": "http://host.docker.internal:11434/v1",
+      "api": "openai-completions",
+      "apiKey": "ollama",
+      "compat": {
+        "supportsDeveloperRole": false,
+        "supportsReasoningEffort": false
+      },
+      "models": [
+        {
+          "id": "qwen3.6:35b-a3b"
+        },
+      ]
+    },
+  }
+}
+```
+
+This file is mounted in the container when including: `MODELS_JSON=./models.json` in `.env`.
+
+
+With `tau` a similar [`catalog.toml`](https://twotimespi.dev/guides/providers-and-models/) can be created:
+
+```toml
+schema_version = 1
+
+[[providers]]
+name = "ollama"
+display_name = "Ollama"
+kind = "openai-compatible"
+base_url = "http://host.docker.internal:11434/v1"
+api_key_env = "OLLAMA_API_KEY"
+credential_name = "ollama"
+models = [
+    "qwen3.6:35b-a3b",
+]
+default_model = "qwen3.6:35b-a3b"
+docs_url = "https://example.test/local-gateway"
+thinking_levels = [
+    "low",
+    "medium",
+    "high"
+]
+```
+
+This file is mounted in the container when including: `CATALOG_TOML=./catalog.toml` in `.env`.
+
+API keys like `OPENAI_API_KEY`, `ANTHROPIC_API_KEY` can also be set in `.env`.
 
 ### Ansible
 

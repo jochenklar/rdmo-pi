@@ -1,24 +1,32 @@
-.PHONY: run build clean
+# include the vars from the .env file
+-include .env
 
-# only set UID/GID on linux
-ifeq ($(shell uname),Linux)
-ifeq ($(shell id -u),0)
-export UID=1000
-export GID=1000
+# set a default value for AGENT
+AGENT ?= pi
+
+# only set UID/GID on linux as user
+ifeq ($(UNAME_S),Darwin)
+HOST_UID := 1000
+HOST_GID := 1000
+else ifeq ($(shell id -u),0)
+HOST_UID := 1000
+HOST_GID := 1000
 else
-export UID=$(shell id -u)
-export GID=$(shell id -g)
+HOST_UID := $(shell id -u)
+HOST_GID := $(shell id -g)
 endif
-endif
+
+.PHONY: run bash build clean
 
 run:
-	mkdir -p pi/agent workspace
-	chown -R $(UID):$(GID) pi workspace
-	docker compose run --rm --build pi
+	docker compose run --rm $(AGENT)
+
+bash:
+	docker compose run --rm $(AGENT) bash
 
 build:
-	docker compose build
+	docker compose build $(AGENT)
 
 clean:
-	docker compose down
-	rm -fr pi/*
+	docker compose down -v $(AGENT)
+	docker compose rm -v $(AGENT)
