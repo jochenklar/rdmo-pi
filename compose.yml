@@ -13,7 +13,6 @@ x-common: &common
 services:
   pi:
     <<: *common
-    container_name: rdmo-pi
     image: rdmo-pi:latest
     build:
       context: .
@@ -30,7 +29,6 @@ services:
 
   claude:
     <<: *common
-    container_name: rdmo-claude
     image: rdmo-claude:latest
     build:
       context: .
@@ -46,7 +44,6 @@ services:
 
   codex:
     <<: *common
-    container_name: rdmo-codex
     image: rdmo-codex:latest
     build:
       context: .
@@ -62,7 +59,6 @@ services:
 
   tau:
     <<: *common
-    container_name: rdmo-tau
     image: rdmo-tau:latest
     build:
       context: .
